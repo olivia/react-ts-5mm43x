@@ -71,6 +71,11 @@ const ShapePath = (props) => {
   );
 };
 
+const getLinkDir = ([l1s, l1e]) => {
+  const [diffx, diffy] = [l1e[0] - l1s[0], l1e[1], l1s[1]];
+  
+};
+
 const pointIsOnLine = (p, [l1s, l1e]) => {
   const [[px, py], [x1, y1], [x2, y2]] = [p, l1s, l1e].map(idxToXY);
 
@@ -130,11 +135,7 @@ const isParallel = ([l1s, l1e], [l2s, l2e]) => {
 const pDir = ['NW', 'NE', 'SE', 'SW', 'N', 'E', 'S', 'W'];
 
 const randomWalk = ({ pivotPoint, maxStep, dhRatio, skipList = [] }) => {
-  const [isDiagonal, dir, magnitude] = [
-    Math.random() < dhRatio,
-    Math.round(Math.random() * 3),
-    1 + Math.round(Math.random() * (maxStep - 1)),
-  ];
+  const [magnitude] = [1 + Math.round(Math.random() * (maxStep - 1))];
   const diagonalOffsets = [
     [-1, 1],
     [1, 1],
@@ -213,54 +214,55 @@ export default function App() {
   const [dhRatio, setDHRatio] = React.useState(0.5);
   const [maxStep, setMaxStep] = React.useState(10);
   const [shapeNum, setShapeNum] = React.useState(8);
+  const [showPaths, setShowPath] = React.useState(false);
 
-  const randArr = randomUniqArr(
-    shapeNum * 3,
-    shapeNum,
-    (prev, prevPoints, links) => {
-      if (prev === undefined || prevPoints.length % shapeNum === 0) {
-        return [randIdx(), links];
-      } else {
-        let iterations = 0;
-        let found = false;
-        let skipList = [];
-        const pivotPoint = prevPoints[prevPoints.length - 1];
-        while (iterations <= 100) {
-          const [offsetAttempt, newLine] = randomWalk({
-            pivotPoint,
-            maxStep,
-            dhRatio,
-            skipList,
-          });
+  const randArr = React.useMemo(
+    () =>
+      randomUniqArr(shapeNum * 3, shapeNum, (prev, prevPoints, links) => {
+        if (prev === undefined || prevPoints.length % shapeNum === 0) {
+          return [randIdx(), links];
+        } else {
+          let iterations = 0;
+          let found = false;
+          let skipList = [];
+          const pivotPoint = prevPoints[prevPoints.length - 1];
+          while (iterations <= 100) {
+            const [offsetAttempt, newLine] = randomWalk({
+              pivotPoint,
+              maxStep,
+              dhRatio,
+              skipList,
+            });
 
-          if (canInsert(newLine, prevPoints, shapeNum, links)) {
-            console.log(
-              'completed after iterations',
-              iterations,
-              links,
-              newLine
-            );
+            if (canInsert(newLine, prevPoints, shapeNum, links)) {
+              console.log(
+                'completed after iterations',
+                iterations,
+                links,
+                newLine
+              );
 
-            return [newLine[1], links, pivotPoint];
-          }
-          /*
+              return [newLine[1], links, pivotPoint];
+            }
+            /*
         console.log(
           `Tried ${pDir[offsetAttempt]} with node ${pivotPoint} w skiplist: ${skipList}`
         );
         */
-          if (skipList.length === 7) {
-            //console.log('clearing skiplist');
-            skipList = [];
-          } else {
-            skipList.push(offsetAttempt);
-          }
+            if (skipList.length === 7) {
+              //console.log('clearing skiplist');
+              skipList = [];
+            } else {
+              skipList.push(offsetAttempt);
+            }
 
-          iterations++;
+            iterations++;
+          }
+          throw new Error('Exhausted iterations');
         }
-        throw new Error('Exhausted iterations');
-      }
-    }
-  ).map(idxToXY);
+      }).map(idxToXY),
+    [a]
+  );
   console.log(randArr);
   const hgrid = Array(height / dy)
     .fill(0)
@@ -354,10 +356,13 @@ export default function App() {
         {circles}
         {triangle}
         {diamond}
-        {false && pathLines}
+        {showPaths && pathLines}
       </svg>
       <div>
         <button onClick={() => sa(a + 1)}>Refresh</button>
+      </div>
+      <div>
+        <button onClick={() => setShowPath(!showPaths)}>Toggle Paths</button>
       </div>
       <div>
         <label>
