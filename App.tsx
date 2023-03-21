@@ -7,20 +7,26 @@ import { idxToXY, xyToCart } from './line-utils';
 
 export default function App() {
   const [a, sa] = React.useState(0);
-  const [dhRatio, setDHRatio] = React.useState(0.5);
-  const [maxStep, setMaxStep] = React.useState(10);
-  const [shapeNum, setShapeNum] = React.useState(8);
+  const [maxStep, setMaxStep] = React.useState(20);
+  const [shapeNum, setShapeNum] = React.useState(10);
   const [showPaths, setShowPath] = React.useState(false);
 
-  const randArr = React.useMemo(
-    () =>
-      randomUniqArr(
+  const randArr = React.useMemo(() => {
+    let iterations = 10;
+    let res;
+    while (iterations--) {
+      res = randomUniqArr(
         shapeNum * 3,
         shapeNum,
-        randomPathFnCreator({ dhRatio, shapeNum, maxStep })
-      ).map(idxToXY),
-    [a]
-  );
+        randomPathFnCreator({ shapeNum, maxStep })
+      ).map(idxToXY);
+
+      if (res.length > shapeNum * 2) {
+        return res;
+      }
+    }
+    return res;
+  }, [a, shapeNum, maxStep]);
 
   console.log(randArr);
   const hgrid = Array(height / dy)

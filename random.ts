@@ -33,16 +33,12 @@ export const randomUniqArr = (n, shapeNum, randGen) => {
         links.push([pivotPoint, r]);
       }
     } catch (e) {
-      console.log('results', res.length, shapeNum);
       console.error(e, res.length, shapeNum);
 
-      console.log('popping');
       res.pop();
       if (res.length % shapeNum != 0) {
-        console.log('pop goes the link');
         links.pop();
       }
-      console.log('bla', res.length, links.length);
       n++;
       maxiters--;
     }
@@ -50,24 +46,7 @@ export const randomUniqArr = (n, shapeNum, randGen) => {
   if (maxiters < 0) {
     console.log('exhausted rand function');
   }
-  console.log('blaa', res.length, links.length);
   return res;
-};
-
-const getOffset = (dir) => {
-  const diagonalOffsets = [
-    [-1, 1],
-    [1, 1],
-    [1, -1],
-    [-1, -1],
-  ];
-  const cardinalOffsets = [
-    [0, 1],
-    [1, 0],
-    [0, -1],
-    [-1, 0],
-  ];
-  return diagonalOffsets.concat(cardinalOffsets)[dir];
 };
 
 const offsetPivotPoint = (pivotPoint, dir, magnitude) => {
@@ -107,7 +86,7 @@ export const randomWalk = ({ pivotPoint, magnitude, skipList = [] }) => {
   return [ALLOFFSETS.indexOf(offset), [pivotPoint, perturbedPoint]] as const;
 };
 
-export const randomPathFnCreator = ({ shapeNum, maxStep, dhRatio }) => {
+export const randomPathFnCreator = ({ shapeNum, maxStep }) => {
   const fn = (prev, prevPoints, links) => {
     let iterations = 0;
     let skipList = [];
