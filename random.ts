@@ -10,7 +10,7 @@ import {
   ALLOFFSETS,
   DOFFSETS,
 } from './constants';
-import { canInsert, idxToXY, xyToIdx } from './line-utils';
+import { canInsert, idxToXY, xyToCart, xyToIdx } from './line-utils';
 
 const randIdx = () =>
   Math.round(Math.random() * (-1 + (height * width) / (dx * dy)));
@@ -46,7 +46,24 @@ export const randomUniqArr = (n, shapeNum, randGen) => {
   if (maxiters < 0) {
     console.log('exhausted rand function');
   }
-  return res;
+  console.log('all links', links, links.map(linksIdxToXy));
+
+  return [
+    res.map(idxToXY),
+    {
+      squareLinks: links.slice(0, shapeNum - 1).map(linksIdxToXy),
+      diamondLinks: links
+        .slice(shapeNum - 1, (shapeNum - 1) * 2)
+        .map(linksIdxToXy),
+      triangleLinks: links
+        .slice((shapeNum - 1) * 2, (shapeNum - 1) * 3)
+        .map(linksIdxToXy),
+    },
+  ];
+};
+
+const linksIdxToXy = (link) => {
+  return [xyToCart(idxToXY(link[0])), xyToCart(idxToXY(link[1]))];
 };
 
 const offsetPivotPoint = (pivotPoint, dir, magnitude) => {
@@ -131,6 +148,5 @@ export const randomPathFnCreator = ({ shapeNum, maxStep }) => {
       throw new Error('Exhausted iterations');
     }
   };
-
   return fn;
 };

@@ -1,16 +1,16 @@
 import { width, dx, dy, height, minx, miny, maxx, maxy } from './constants';
 
-export const idxToXY = (idx) => {
+export const idxToXY = (idx: number): [number, number] => {
   const cols = width / dx;
   return [idx % cols, Math.floor(idx / cols)];
 };
 
-export const xyToIdx = ([x, y]) => {
+export const xyToIdx = ([x, y]: [number, number]) => {
   const cols = width / dx;
   return y * cols + x;
 };
 
-export const xyToCart = ([x, y]) => {
+export const xyToCart = ([x, y]: [number, number]): [number, number] => {
   return [(x + 0.5) * dx, (y + 0.5) * dy];
 };
 

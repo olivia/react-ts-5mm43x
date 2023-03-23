@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './style.css';
 import { maxx, height, width, dx, dy } from './constants';
-import { ShapePath } from './shape-path';
+import { LinePath, ShapePath } from './shape-path';
 import { randomPathFnCreator, randomUniqArr } from './random';
 import { idxToXY, xyToCart } from './line-utils';
 
@@ -11,7 +11,7 @@ export default function App() {
   const [shapeNum, setShapeNum] = React.useState(10);
   const [showPaths, setShowPath] = React.useState(false);
 
-  const randArr = React.useMemo(() => {
+  const [randArr, allLinks] = React.useMemo(() => {
     let iterations = 10;
     let res;
     while (iterations--) {
@@ -19,15 +19,14 @@ export default function App() {
         shapeNum * 3,
         shapeNum,
         randomPathFnCreator({ shapeNum, maxStep })
-      ).map(idxToXY);
+      );
 
-      if (res.length > shapeNum * 2) {
+      if (res[0].length > shapeNum * 2) {
         return res;
       }
     }
     return res;
   }, [a, shapeNum, maxStep]);
-
   console.log(randArr);
   const hgrid = Array(height / dy)
     .fill(0)
@@ -114,6 +113,7 @@ export default function App() {
       );
     });
 
+  const { squareLinks, triangleLinks, diamondLinks } = allLinks;
   return (
     <div>
       <svg width={width} height={height} style={{ background: 'grey' }}>
@@ -122,7 +122,13 @@ export default function App() {
         {circles}
         {triangle}
         {diamond}
-        {showPaths && pathLines}
+        {showPaths && (
+          <React.Fragment>
+            <LinePath color={'red'} links={squareLinks} />
+            <LinePath color={'green'} links={diamondLinks} />
+            <LinePath color={'blue'} links={triangleLinks} />
+          </React.Fragment>
+        )}
       </svg>
       <div>
         <button onClick={() => sa(a + 1)}>Refresh</button>
